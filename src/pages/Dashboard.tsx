@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { AGENTES, custoTotalEcossistema, estimarCustoMensal } from '../lib/agents'
 import { Bot, MessageSquare, DollarSign, TrendingUp, Zap, CheckCircle2, Clock } from 'lucide-react'
-import clsx from 'clsx'
 
 interface ResumoMes {
   total_chamadas: number
@@ -40,29 +39,29 @@ export default function Dashboard() {
       label: 'Agentes Ativos',
       value: `${ativos.length} / ${AGENTES.length}`,
       icon: Bot,
-      color: 'text-purple-400',
-      bg: 'bg-purple-500/10',
+      color: '#8e2753',
+      bg: 'rgba(142,39,83,0.1)',
     },
     {
       label: 'Chamadas (30d)',
       value: loading ? '...' : (resumo?.total_chamadas ?? 0).toLocaleString('pt-BR'),
       icon: MessageSquare,
-      color: 'text-blue-400',
-      bg: 'bg-blue-500/10',
+      color: '#0e2955',
+      bg: 'rgba(14,41,85,0.1)',
     },
     {
       label: 'Custo Real (30d)',
       value: loading ? '...' : `R$ ${(resumo?.custo_total_brl ?? 0).toFixed(2)}`,
       icon: DollarSign,
-      color: 'text-green-400',
-      bg: 'bg-green-500/10',
+      color: '#2d8c4e',
+      bg: 'rgba(45,140,78,0.1)',
     },
     {
       label: 'Custo Estimado/mês',
       value: `R$ ${estimativa.brl.toFixed(2)}`,
       icon: TrendingUp,
-      color: 'text-amber-400',
-      bg: 'bg-amber-500/10',
+      color: '#b45309',
+      bg: 'rgba(180,83,9,0.1)',
       sub: `USD ${estimativa.usd.toFixed(4)}`,
     },
   ]
@@ -71,22 +70,22 @@ export default function Dashboard() {
     <div className="p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-        <p className="text-gray-400 text-sm mt-1">Visão geral do ecossistema Marijasmim OS</p>
+        <h1 className="text-2xl font-bold" style={{ color: '#0e2955' }}>Dashboard</h1>
+        <p className="text-sm mt-1" style={{ color: '#6b5b6e' }}>Visão geral do ecossistema marijasmin OS</p>
       </div>
 
       {/* Stats grid */}
       <div className="grid grid-cols-4 gap-4 mb-8">
         {STATS.map(({ label, value, icon: Icon, color, bg, sub }) => (
-          <div key={label} className="bg-[#16161f] border border-[#2a2a38] rounded-xl p-5">
+          <div key={label} className="rounded-xl p-5" style={{ background: '#ffffff', border: '1px solid #e8e4e8' }}>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs text-gray-500 uppercase tracking-wide">{label}</p>
-              <div className={clsx('w-8 h-8 rounded-lg flex items-center justify-center', bg)}>
-                <Icon size={15} className={color} />
+              <p className="text-xs uppercase tracking-wide" style={{ color: '#9c8fa0' }}>{label}</p>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: bg }}>
+                <Icon size={15} style={{ color }} />
               </div>
             </div>
-            <p className="text-2xl font-bold text-white">{value}</p>
-            {sub && <p className="text-xs text-gray-500 mt-1">{sub}</p>}
+            <p className="text-2xl font-bold" style={{ color: '#0e2955' }}>{value}</p>
+            {sub && <p className="text-xs mt-1" style={{ color: '#9c8fa0' }}>{sub}</p>}
           </div>
         ))}
       </div>
@@ -94,25 +93,25 @@ export default function Dashboard() {
       {/* Sistemas overview */}
       <div className="grid grid-cols-2 gap-6 mb-6">
         {/* Agentes ativos */}
-        <div className="bg-[#16161f] border border-[#2a2a38] rounded-xl p-5">
+        <div className="rounded-xl p-5" style={{ background: '#ffffff', border: '1px solid #e8e4e8' }}>
           <div className="flex items-center gap-2 mb-4">
-            <CheckCircle2 size={16} className="text-green-400" />
-            <h2 className="text-sm font-semibold text-white">Agentes em Produção</h2>
-            <span className="ml-auto text-xs bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full">{ativos.length} ativos</span>
+            <CheckCircle2 size={16} style={{ color: '#2d8c4e' }} />
+            <h2 className="text-sm font-semibold" style={{ color: '#0e2955' }}>Agentes em Produção</h2>
+            <span className="ml-auto text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(45,140,78,0.1)', color: '#2d8c4e' }}>{ativos.length} ativos</span>
           </div>
           <div className="space-y-2">
             {ativos.map(a => {
               const custo = estimarCustoMensal(a)
               return (
-                <div key={a.id} className="flex items-center gap-3 p-3 bg-[#1e1e2a] rounded-lg">
+                <div key={a.id} className="flex items-center gap-3 p-3 rounded-lg" style={{ background: '#f7f5f5' }}>
                   <span className="text-xl">{a.emoji}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">{a.nome}</p>
-                    <p className="text-xs text-gray-500">{a.canal}</p>
+                    <p className="text-sm font-medium truncate" style={{ color: '#0e2955' }}>{a.nome}</p>
+                    <p className="text-xs" style={{ color: '#9c8fa0' }}>{a.canal}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-medium text-green-400">R$ {custo.brl.toFixed(2)}/mês</p>
-                    <p className="text-[10px] text-gray-600">{a.estimativa.chamadas_mes} calls</p>
+                    <p className="text-xs font-medium" style={{ color: '#2d8c4e' }}>R$ {custo.brl.toFixed(2)}/mês</p>
+                    <p className="text-[10px]" style={{ color: '#9c8fa0' }}>{a.estimativa.chamadas_mes} calls</p>
                   </div>
                 </div>
               )
@@ -121,21 +120,21 @@ export default function Dashboard() {
         </div>
 
         {/* Em breve */}
-        <div className="bg-[#16161f] border border-[#2a2a38] rounded-xl p-5">
+        <div className="rounded-xl p-5" style={{ background: '#ffffff', border: '1px solid #e8e4e8' }}>
           <div className="flex items-center gap-2 mb-4">
-            <Clock size={16} className="text-amber-400" />
-            <h2 className="text-sm font-semibold text-white">Próximos Agentes</h2>
-            <span className="ml-auto text-xs bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full">{emBreve.length} planejados</span>
+            <Clock size={16} style={{ color: '#b45309' }} />
+            <h2 className="text-sm font-semibold" style={{ color: '#0e2955' }}>Próximos Agentes</h2>
+            <span className="ml-auto text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(180,83,9,0.1)', color: '#b45309' }}>{emBreve.length} planejados</span>
           </div>
           <div className="space-y-1.5 max-h-72 overflow-y-auto pr-1">
             {emBreve.map(a => (
-              <div key={a.id} className="flex items-center gap-3 p-2.5 bg-[#1e1e2a] rounded-lg">
+              <div key={a.id} className="flex items-center gap-3 p-2.5 rounded-lg" style={{ background: '#f7f5f5' }}>
                 <span className="text-lg">{a.emoji}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-300 truncate">{a.nome}</p>
-                  <p className="text-[10px] text-gray-600">{a.sistema}</p>
+                  <p className="text-sm truncate" style={{ color: '#0e2955' }}>{a.nome}</p>
+                  <p className="text-[10px]" style={{ color: '#9c8fa0' }}>{a.sistema}</p>
                 </div>
-                <span className="text-[10px] bg-[#2a2a38] text-gray-400 px-2 py-0.5 rounded-full whitespace-nowrap">{a.modelo.includes('haiku') ? 'Haiku' : 'Sonnet'}</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap" style={{ background: '#f0eef0', color: '#6b5b6e' }}>{a.modelo.includes('haiku') ? 'Haiku' : 'Sonnet'}</span>
               </div>
             ))}
           </div>
@@ -143,28 +142,31 @@ export default function Dashboard() {
       </div>
 
       {/* Roadmap */}
-      <div className="bg-[#16161f] border border-[#2a2a38] rounded-xl p-5">
+      <div className="rounded-xl p-5" style={{ background: '#ffffff', border: '1px solid #e8e4e8' }}>
         <div className="flex items-center gap-2 mb-4">
-          <Zap size={16} className="text-purple-400" />
-          <h2 className="text-sm font-semibold text-white">Roadmap — 5 Sistemas</h2>
+          <Zap size={16} style={{ color: '#8e2753' }} />
+          <h2 className="text-sm font-semibold" style={{ color: '#0e2955' }}>Roadmap — 5 Sistemas</h2>
         </div>
         <div className="grid grid-cols-5 gap-3">
           {[
-            { nome: 'CRM Comercial', fase: 1, status: 'ativo', agentes: 2, cor: 'bg-green-500' },
-            { nome: 'Financeiro', fase: 2, status: 'breve', agentes: 2, cor: 'bg-blue-500' },
-            { nome: 'Marketing', fase: 3, status: 'breve', agentes: 7, cor: 'bg-purple-500' },
-            { nome: 'Logística', fase: 4, status: 'breve', agentes: 2, cor: 'bg-amber-500' },
-            { nome: 'RH + Produção', fase: 5, status: 'breve', agentes: 2, cor: 'bg-pink-500' },
+            { nome: 'CRM Comercial', fase: 1, status: 'ativo', agentes: 2, cor: '#2d8c4e' },
+            { nome: 'Financeiro', fase: 2, status: 'breve', agentes: 2, cor: '#0e2955' },
+            { nome: 'Marketing', fase: 3, status: 'breve', agentes: 7, cor: '#8e2753' },
+            { nome: 'Logística', fase: 4, status: 'breve', agentes: 2, cor: '#b45309' },
+            { nome: 'RH + Produção', fase: 5, status: 'breve', agentes: 2, cor: '#7c3aed' },
           ].map(s => (
-            <div key={s.fase} className="bg-[#1e1e2a] rounded-lg p-3 text-center">
-              <div className={clsx('w-2 h-2 rounded-full mx-auto mb-2', s.cor)} />
-              <p className="text-xs font-medium text-white">Fase {s.fase}</p>
-              <p className="text-[10px] text-gray-400 mt-0.5">{s.nome}</p>
-              <p className="text-[10px] text-gray-600 mt-1">{s.agentes} agentes</p>
-              <span className={clsx(
-                'inline-block mt-2 text-[9px] px-2 py-0.5 rounded-full',
-                s.status === 'ativo' ? 'bg-green-500/10 text-green-400' : 'bg-[#2a2a38] text-gray-500'
-              )}>
+            <div key={s.fase} className="rounded-lg p-3 text-center" style={{ background: '#f7f5f5' }}>
+              <div className="w-2 h-2 rounded-full mx-auto mb-2" style={{ background: s.cor }} />
+              <p className="text-xs font-medium" style={{ color: '#0e2955' }}>Fase {s.fase}</p>
+              <p className="text-[10px] mt-0.5" style={{ color: '#6b5b6e' }}>{s.nome}</p>
+              <p className="text-[10px] mt-1" style={{ color: '#9c8fa0' }}>{s.agentes} agentes</p>
+              <span
+                className="inline-block mt-2 text-[9px] px-2 py-0.5 rounded-full"
+                style={s.status === 'ativo'
+                  ? { background: 'rgba(45,140,78,0.1)', color: '#2d8c4e' }
+                  : { background: '#f0eef0', color: '#9c8fa0' }
+                }
+              >
                 {s.status === 'ativo' ? '✓ ativo' : 'planejado'}
               </span>
             </div>

@@ -43,26 +43,26 @@ export default function Logs() {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Segurança & Logs</h1>
-        <p className="text-gray-400 text-sm mt-1">Histórico completo de chamadas e status dos agentes</p>
+        <h1 className="text-2xl font-bold" style={{ color: '#0e2955' }}>Segurança & Logs</h1>
+        <p className="text-sm mt-1" style={{ color: '#6b5b6e' }}>Histórico completo de chamadas e status dos agentes</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Total de chamadas', value: logs.length, icon: Clock, color: 'text-blue-400', bg: 'bg-blue-500/10' },
-          { label: 'Sucessos', value: logs.length - erros, icon: CheckCircle2, color: 'text-green-400', bg: 'bg-green-500/10' },
-          { label: 'Erros', value: erros, icon: AlertCircle, color: 'text-red-400', bg: 'bg-red-500/10' },
-          { label: 'Taxa de sucesso', value: `${taxa}%`, icon: Shield, color: 'text-purple-400', bg: 'bg-purple-500/10' },
+          { label: 'Total de chamadas', value: logs.length, icon: Clock, color: '#0e2955', bg: 'rgba(14,41,85,0.1)' },
+          { label: 'Sucessos', value: logs.length - erros, icon: CheckCircle2, color: '#2d8c4e', bg: 'rgba(45,140,78,0.1)' },
+          { label: 'Erros', value: erros, icon: AlertCircle, color: '#dc2626', bg: 'rgba(220,38,38,0.1)' },
+          { label: 'Taxa de sucesso', value: `${taxa}%`, icon: Shield, color: '#8e2753', bg: 'rgba(142,39,83,0.1)' },
         ].map(({ label, value, icon: Icon, color, bg }) => (
-          <div key={label} className="bg-[#16161f] border border-[#2a2a38] rounded-xl p-4">
+          <div key={label} className="rounded-xl p-4" style={{ background: '#ffffff', border: '1px solid #e8e4e8' }}>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-gray-500">{label}</p>
-              <div className={clsx('w-7 h-7 rounded-lg flex items-center justify-center', bg)}>
-                <Icon size={13} className={color} />
+              <p className="text-xs" style={{ color: '#9c8fa0' }}>{label}</p>
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: bg }}>
+                <Icon size={13} style={{ color }} />
               </div>
             </div>
-            <p className="text-xl font-bold text-white">{value}</p>
+            <p className="text-xl font-bold" style={{ color: '#0e2955' }}>{value}</p>
           </div>
         ))}
       </div>
@@ -73,12 +73,11 @@ export default function Logs() {
           <button
             key={f}
             onClick={() => setFiltro(f)}
-            className={clsx(
-              'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border',
-              filtro === f
-                ? 'bg-purple-600 text-white border-purple-600'
-                : 'bg-[#1e1e2a] text-gray-400 border-[#2a2a38] hover:text-gray-200'
-            )}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+            style={filtro === f
+              ? { background: '#8e2753', color: '#ffffff', border: '1px solid #8e2753' }
+              : { background: '#ffffff', color: '#6b5b6e', border: '1px solid #e8e4e8' }
+            }
           >
             {f === 'todos' ? 'Todos' : 'Só erros'}
           </button>
@@ -86,22 +85,22 @@ export default function Logs() {
       </div>
 
       {/* Table */}
-      <div className="bg-[#16161f] border border-[#2a2a38] rounded-xl overflow-hidden">
+      <div className="rounded-xl overflow-hidden" style={{ background: '#ffffff', border: '1px solid #e8e4e8' }}>
         {loading ? (
-          <div className="py-12 text-center text-gray-500 text-sm">Carregando logs...</div>
+          <div className="py-12 text-center text-sm" style={{ color: '#9c8fa0' }}>Carregando logs...</div>
         ) : logs.length === 0 ? (
           <div className="py-12 text-center">
-            <Shield size={32} className="text-gray-700 mx-auto mb-3" />
-            <p className="text-gray-500 text-sm">Nenhuma chamada registrada ainda.</p>
-            <p className="text-gray-600 text-xs mt-1">Os logs aparecerão aqui quando os agentes fizerem chamadas à Claude API.</p>
+            <Shield size={32} className="mx-auto mb-3" style={{ color: '#e8e4e8' }} />
+            <p className="text-sm" style={{ color: '#9c8fa0' }}>Nenhuma chamada registrada ainda.</p>
+            <p className="text-xs mt-1" style={{ color: '#9c8fa0' }}>Os logs aparecerão aqui quando os agentes fizerem chamadas à Claude API.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#2a2a38]">
+                <tr style={{ borderBottom: '1px solid #e8e4e8' }}>
                   {['Status', 'Agente', 'Tarefa', 'Modelo', 'Tokens', 'Custo', 'Data/hora'].map(h => (
-                    <th key={h} className="text-left px-4 py-3 text-xs text-gray-500 font-medium whitespace-nowrap">{h}</th>
+                    <th key={h} className="text-left px-4 py-3 text-xs font-medium whitespace-nowrap" style={{ color: '#9c8fa0' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -109,24 +108,21 @@ export default function Logs() {
                 {logs.map((log, i) => (
                   <tr
                     key={log.id}
-                    className={clsx(
-                      'border-b border-[#2a2a38] hover:bg-white/[0.02]',
-                      i === logs.length - 1 && 'border-0',
-                      !log.sucesso && 'bg-red-500/5'
-                    )}
+                    className={clsx(!log.sucesso && 'bg-red-50')}
+                    style={{ borderBottom: i === logs.length - 1 ? 'none' : '1px solid #e8e4e8' }}
                   >
                     <td className="px-4 py-3">
                       {log.sucesso
-                        ? <span className="w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center"><CheckCircle2 size={12} className="text-green-400" /></span>
-                        : <span className="w-5 h-5 rounded-full bg-red-500/10 flex items-center justify-center"><AlertCircle size={12} className="text-red-400" /></span>
+                        ? <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'rgba(45,140,78,0.1)' }}><CheckCircle2 size={12} style={{ color: '#2d8c4e' }} /></span>
+                        : <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'rgba(220,38,38,0.1)' }}><AlertCircle size={12} style={{ color: '#dc2626' }} /></span>
                       }
                     </td>
-                    <td className="px-4 py-3 text-white font-medium">{log.agente}</td>
-                    <td className="px-4 py-3 text-gray-400 text-xs max-w-[180px] truncate">{log.tarefa || '—'}</td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{log.modelo.includes('haiku') ? 'Haiku' : 'Sonnet'}</td>
-                    <td className="px-4 py-3 text-gray-400 text-xs">{(log.tokens_input + log.tokens_output).toLocaleString('pt-BR')}</td>
-                    <td className="px-4 py-3 text-gray-300 text-xs">R$ {(Number(log.custo_usd) * 5.8).toFixed(6)}</td>
-                    <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+                    <td className="px-4 py-3 font-medium" style={{ color: '#0e2955' }}>{log.agente}</td>
+                    <td className="px-4 py-3 text-xs max-w-[180px] truncate" style={{ color: '#6b5b6e' }}>{log.tarefa || '—'}</td>
+                    <td className="px-4 py-3 text-xs" style={{ color: '#9c8fa0' }}>{log.modelo.includes('haiku') ? 'Haiku' : 'Sonnet'}</td>
+                    <td className="px-4 py-3 text-xs" style={{ color: '#6b5b6e' }}>{(log.tokens_input + log.tokens_output).toLocaleString('pt-BR')}</td>
+                    <td className="px-4 py-3 text-xs" style={{ color: '#0e2955' }}>R$ {(Number(log.custo_usd) * 5.8).toFixed(6)}</td>
+                    <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: '#9c8fa0' }}>
                       {new Date(log.created_at).toLocaleString('pt-BR')}
                     </td>
                   </tr>

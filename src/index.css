@@ -1,25 +1,45 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #a855f7;
-  --color-brand-dark: #7c3aed;
-  --color-surface: #0f0f14;
-  --color-surface-2: #16161f;
-  --color-surface-3: #1e1e2a;
-  --color-border: #2a2a38;
-  --color-muted: #6b7280;
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --color-vinho: #8e2753;
+  --color-vinho-light: #b03570;
+  --color-vinho-dark: #6b1d3e;
+  --color-azul: #0e2955;
+  --color-azul-light: #1a3d7a;
+  --color-bg: #f7f5f5;
+  --color-surface: #ffffff;
+  --color-surface-2: #f0eef0;
+  --color-border: #e8e4e8;
+  --color-text: #0e2955;
+  --color-muted: #6b5b6e;
+  --color-text-light: #9c8fa0;
+  --font-sans: 'Montserrat', system-ui, sans-serif;
+}
+
+:root {
+  --vinho: #8e2753;
+  --vinho-light: #b03570;
+  --vinho-dark: #6b1d3e;
+  --azul: #0e2955;
+  --azul-light: #1a3d7a;
+  --bg: #f7f5f5;
+  --surface: #ffffff;
+  --surface-2: #f0eef0;
+  --border: #e8e4e8;
+  --text: #0e2955;
+  --text-muted: #6b5b6e;
+  --text-light: #9c8fa0;
 }
 
 * {
   box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif;
 }
 
 body {
   margin: 0;
-  background: #0f0f14;
-  color: #e5e7eb;
-  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -28,5 +48,5 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #2a2a38; border-radius: 9999px; }
-::-webkit-scrollbar-thumb:hover { background: #3a3a50; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #d0cad0; }
