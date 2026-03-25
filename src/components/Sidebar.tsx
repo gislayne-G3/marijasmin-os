@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Bot, BarChart3, MessageSquare, Shield, Flower2 } from 'lucide-react'
+import { LayoutDashboard, Bot, BarChart3, MessageSquare, Shield, Flower2, LogOut } from 'lucide-react'
+import { supabase } from '../lib/supabase'
 import clsx from 'clsx'
 
 const LINKS = [
@@ -51,9 +52,18 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="px-5 py-4 border-t border-[#2a2a38]">
-        <p className="text-[10px] text-gray-600">Supabase: oovdayewoaeyaolzoesq</p>
-        <p className="text-[10px] text-gray-600 mt-0.5">v1.0.0 · Fase 1</p>
+      <div className="px-3 py-4 border-t border-[#2a2a38] space-y-1">
+        <div className="px-2 mb-2">
+          <p className="text-[10px] text-gray-600">Supabase: oovdayewoaeyaolzoesq</p>
+          <p className="text-[10px] text-gray-600">v1.0.0 · Fase 1</p>
+        </div>
+        <button
+          onClick={() => supabase.auth.signOut()}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-500 hover:text-red-400 hover:bg-red-500/5 transition-colors"
+        >
+          <LogOut size={15} />
+          Sair
+        </button>
       </div>
     </aside>
   )
