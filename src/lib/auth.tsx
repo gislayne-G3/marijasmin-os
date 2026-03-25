@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import { Session } from '@supabase/supabase-js'
+import { createContext, useContext, useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
+import type { Session } from '@supabase/supabase-js'
 import { supabase } from './supabase'
 
 interface AuthCtx {
