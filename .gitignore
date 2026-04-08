@@ -23,4 +23,14 @@ dist-ssr
 *.sln
 *.sw?
 .env
+.env.*
+!.env.example
 .vercel
+
+# Credenciais e segredos - NUNCA commitar!
+*ECOSSISTEMA*
+*credentials*
+*secrets*
+*-keys.md
+*.pem
+*.key

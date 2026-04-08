@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Bot, BarChart3, MessageSquare, Shield, Flower2, LogOut } from 'lucide-react'
+import { LayoutDashboard, Bot, BarChart3, MessageSquare, Shield, Flower2, LogOut, DollarSign } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import clsx from 'clsx'
 
@@ -7,6 +7,7 @@ const LINKS = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { to: '/agentes', label: 'Agentes', icon: Bot },
   { to: '/uso', label: 'Uso & Custos', icon: BarChart3 },
+  { to: '/custos', label: 'Custos', icon: DollarSign },
   { to: '/fiscal', label: 'Chat Fiscal', icon: MessageSquare },
   { to: '/logs', label: 'Segurança', icon: Shield },
 ]

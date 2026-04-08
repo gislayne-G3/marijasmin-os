@@ -1,91 +1,228 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { AGENTES, custoTotalEcossistema, estimarCustoMensal } from '../lib/agents'
-import { Bot, MessageSquare, DollarSign, TrendingUp, Zap, CheckCircle2, Clock } from 'lucide-react'
+import { AGENTES, estimarCustoMensal } from '../lib/agents'
+import { getCambioBrl, CAMBIO_FALLBACK } from '../lib/cambio'
+import {
+  AGENTES_PRODUCAO,
+  PRICING_FALLBACK,
+  estimarCustoMensalUsd,
+  type ModelPricing,
+} from '../lib/pricing'
+import {
+  Bot,
+  MessageSquare,
+  DollarSign,
+  TrendingUp,
+  Zap,
+  CheckCircle2,
+  Clock,
+  Scale,
+  Image as ImageIcon,
+  Megaphone,
+  ArrowRight,
+} from 'lucide-react'
 
-interface ResumoMes {
+interface UsoReal {
+  agent_name: string
   total_chamadas: number
-  custo_total_usd: number
   custo_total_brl: number
 }
 
+interface EquipeRef {
+  salario_brl: number
+}
+
+interface ToolCost {
+  categoria: string
+  custo_brl: number
+}
+
 export default function Dashboard() {
-  const [resumo, setResumo] = useState<ResumoMes | null>(null)
+  const [pricing, setPricing] = useState<Record<string, ModelPricing>>(PRICING_FALLBACK)
+  const [usoReal, setUsoReal] = useState<UsoReal[]>([])
+  const [equipe, setEquipe] = useState<EquipeRef[]>([])
+  const [tools, setTools] = useState<ToolCost[]>([])
+  const [cambio, setCambio] = useState(CAMBIO_FALLBACK)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let mounted = true
     async function load() {
-      const { data } = await supabase
-        .from('agentes_uso')
-        .select('tokens_input, tokens_output, custo_usd')
-        .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
-
-      if (data) {
-        const total_chamadas = data.length
-        const custo_total_usd = data.reduce((s, r) => s + Number(r.custo_usd), 0)
-        setResumo({ total_chamadas, custo_total_usd, custo_total_brl: custo_total_usd * 5.8 })
+      const [pr, uso, eq, tc, brl] = await Promise.all([
+        supabase.from('model_pricing').select('*'),
+        supabase.from('vw_agentes_custo_mes_atual').select('agent_name,total_chamadas,custo_total_brl'),
+        supabase.from('equipe_humana_referencia').select('salario_brl').eq('ativo', true),
+        supabase.from('tool_costs').select('categoria,custo_brl').eq('ativo', true),
+        getCambioBrl(),
+      ])
+      if (!mounted) return
+      if (pr.data && pr.data.length > 0) {
+        const map: Record<string, ModelPricing> = { ...PRICING_FALLBACK }
+        for (const r of pr.data) {
+          map[r.model] = {
+            model: r.model,
+            preco_input_usd_por_mtok: Number(r.preco_input_usd_por_mtok),
+            preco_output_usd_por_mtok: Number(r.preco_output_usd_por_mtok),
+          }
+        }
+        setPricing(map)
       }
+      if (uso.data) setUsoReal(uso.data as UsoReal[])
+      if (eq.data) setEquipe(eq.data as EquipeRef[])
+      if (tc.data) setTools(tc.data as ToolCost[])
+      setCambio(brl)
       setLoading(false)
     }
     load()
+    return () => { mounted = false }
   }, [])
 
-  const estimativa = custoTotalEcossistema()
+  const usoMap = useMemo(() => {
+    const m: Record<string, UsoReal> = {}
+    for (const u of usoReal) m[u.agent_name] = u
+    return m
+  }, [usoReal])
+
+  const custoIATokens = useMemo(() => {
+    let totalBrl = 0
+    for (const ag of AGENTES_PRODUCAO) {
+      const real = usoMap[ag.id]
+      if (real && Number(real.custo_total_brl) > 0) {
+        totalBrl += Number(real.custo_total_brl)
+      } else {
+        totalBrl += estimarCustoMensalUsd(ag, pricing) * cambio
+      }
+    }
+    return totalBrl
+  }, [usoMap, pricing, cambio])
+
+  const totalChamadasMari = useMemo(() => {
+    return AGENTES_PRODUCAO.filter((a) => a.id.startsWith('mari_')).reduce((s, a) => {
+      const real = usoMap[a.id]
+      return s + (real ? Number(real.total_chamadas) : a.estimativa.chamadas_mes)
+    }, 0)
+  }, [usoMap])
+
+  const custoFerramentasIA = tools.filter((t) => t.categoria === 'ia').reduce((s, t) => s + Number(t.custo_brl), 0)
+  const custoInfra = tools.filter((t) => t.categoria === 'infra' || t.categoria === 'plataforma').reduce((s, t) => s + Number(t.custo_brl), 0)
+  const totalHumano = equipe.reduce((s, e) => s + Number(e.salario_brl), 0)
+  const custoEcossistema = custoIATokens + custoFerramentasIA + custoInfra
+  const economia = totalHumano - custoEcossistema
+  const roi = custoEcossistema > 0 ? economia / custoEcossistema : 0
+
   const ativos = AGENTES.filter(a => a.status === 'ativo')
   const emBreve = AGENTES.filter(a => a.status === 'em_breve')
 
   const STATS = [
     {
-      label: 'Agentes Ativos',
-      value: `${ativos.length} / ${AGENTES.length}`,
-      icon: Bot,
+      label: 'Custo total (mês)',
+      value: loading ? '...' : `R$ ${custoEcossistema.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      icon: DollarSign,
       color: '#8e2753',
       bg: 'rgba(142,39,83,0.1)',
+      sub: 'tokens + infra + plataformas',
     },
     {
-      label: 'Chamadas (30d)',
-      value: loading ? '...' : (resumo?.total_chamadas ?? 0).toLocaleString('pt-BR'),
-      icon: MessageSquare,
-      color: '#0e2955',
-      bg: 'rgba(14,41,85,0.1)',
-    },
-    {
-      label: 'Custo Real (30d)',
-      value: loading ? '...' : `R$ ${(resumo?.custo_total_brl ?? 0).toFixed(2)}`,
-      icon: DollarSign,
+      label: 'Economia vs humanos',
+      value: loading ? '...' : `R$ ${economia.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+      icon: TrendingUp,
       color: '#2d8c4e',
       bg: 'rgba(45,140,78,0.1)',
+      sub: `vs ${equipe.length} cargos CLT`,
     },
     {
-      label: 'Custo Estimado/mês',
-      value: `R$ ${estimativa.brl.toFixed(2)}`,
-      icon: TrendingUp,
+      label: 'ROI ecossistema',
+      value: loading ? '...' : `${(roi * 100).toFixed(0)}%`,
+      icon: Scale,
+      color: '#0e2955',
+      bg: 'rgba(14,41,85,0.1)',
+      sub: `${(roi + 1).toFixed(1)}x retorno`,
+    },
+    {
+      label: 'Conversas Mari',
+      value: loading ? '...' : totalChamadasMari.toLocaleString('pt-BR'),
+      icon: MessageSquare,
       color: '#b45309',
       bg: 'rgba(180,83,9,0.1)',
-      sub: `USD ${estimativa.usd.toFixed(4)}`,
+      sub: 'WhatsApp + IG + Chatwoot',
+    },
+  ]
+
+  const SECONDARY = [
+    {
+      label: 'Agentes em produção',
+      value: `${AGENTES_PRODUCAO.length}`,
+      icon: Bot,
+      color: '#8e2753',
+      sub: `${ativos.length}/${AGENTES.length} no roadmap`,
+    },
+    {
+      label: 'Imagens Studio (mês)',
+      value: '—',
+      icon: ImageIcon,
+      color: '#7c3aed',
+      sub: 'em breve · marijasmin-marketing',
+    },
+    {
+      label: 'Campanhas publicadas',
+      value: '—',
+      icon: Megaphone,
+      color: '#0e2955',
+      sub: 'em breve · marijasmin-marketing',
+    },
+    {
+      label: 'Câmbio USD/BRL',
+      value: `R$ ${cambio.toFixed(2)}`,
+      icon: TrendingUp,
+      color: '#2d8c4e',
+      sub: cambio === CAMBIO_FALLBACK ? 'fallback' : 'Banco Central',
     },
   ]
 
   return (
     <div className="p-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold" style={{ color: '#0e2955' }}>Dashboard</h1>
-        <p className="text-sm mt-1" style={{ color: '#6b5b6e' }}>Visão geral do ecossistema marijasmin OS</p>
+      <div className="mb-8 flex items-end justify-between">
+        <div>
+          <h1 className="text-2xl font-bold" style={{ color: '#0e2955' }}>Dashboard</h1>
+          <p className="text-sm mt-1" style={{ color: '#6b5b6e' }}>Visão geral do ecossistema marijasmin OS</p>
+        </div>
+        <Link
+          to="/custos"
+          className="text-xs flex items-center gap-1 px-3 py-1.5 rounded-lg"
+          style={{ background: '#8e2753', color: '#ffffff' }}
+        >
+          Painel completo de custos <ArrowRight size={12} />
+        </Link>
       </div>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      {/* Stats grid principal — custos & ROI */}
+      <div className="grid grid-cols-4 gap-4 mb-4">
         {STATS.map(({ label, value, icon: Icon, color, bg, sub }) => (
           <div key={label} className="rounded-xl p-5" style={{ background: '#ffffff', border: '1px solid #e8e4e8' }}>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs uppercase tracking-wide" style={{ color: '#9c8fa0' }}>{label}</p>
+              <p className="text-[10px] uppercase tracking-wide" style={{ color: '#9c8fa0' }}>{label}</p>
               <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: bg }}>
                 <Icon size={15} style={{ color }} />
               </div>
             </div>
-            <p className="text-2xl font-bold" style={{ color: '#0e2955' }}>{value}</p>
-            {sub && <p className="text-xs mt-1" style={{ color: '#9c8fa0' }}>{sub}</p>}
+            <p className="text-2xl font-bold" style={{ color }}>{value}</p>
+            {sub && <p className="text-[10px] mt-1" style={{ color: '#9c8fa0' }}>{sub}</p>}
+          </div>
+        ))}
+      </div>
+
+      {/* Stats grid secundário — operação */}
+      <div className="grid grid-cols-4 gap-4 mb-8">
+        {SECONDARY.map(({ label, value, icon: Icon, color, sub }) => (
+          <div key={label} className="rounded-xl p-4" style={{ background: '#ffffff', border: '1px solid #e8e4e8' }}>
+            <div className="flex items-center gap-2 mb-2">
+              <Icon size={13} style={{ color }} />
+              <p className="text-[10px] uppercase tracking-wide" style={{ color: '#9c8fa0' }}>{label}</p>
+            </div>
+            <p className="text-xl font-semibold" style={{ color: '#0e2955' }}>{value}</p>
+            {sub && <p className="text-[10px] mt-0.5" style={{ color: '#9c8fa0' }}>{sub}</p>}
           </div>
         ))}
       </div>
@@ -167,7 +304,7 @@ export default function Dashboard() {
                   : { background: '#f0eef0', color: '#9c8fa0' }
                 }
               >
-                {s.status === 'ativo' ? '✓ ativo' : 'planejado'}
+                {s.status === 'ativo' ? 'ativo' : 'planejado'}
               </span>
             </div>
           ))}
