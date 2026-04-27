@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 import { supabase } from '../lib/supabase'
-import { Activity, AlertTriangle, CheckCircle2, XCircle, Clock, RefreshCw, Eye, EyeOff } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, XCircle, Clock, RefreshCw, Eye, EyeOff } from 'lucide-react'
 import clsx from 'clsx'
 
 type WorkflowStatus = {
@@ -83,7 +84,9 @@ export default function Workflows() {
 
   async function forceRefresh() {
     setRefreshing(true)
-    await supabase.rpc('fn_run_os_watchdog').catch(() => {})
+    try {
+      await supabase.rpc('fn_run_os_watchdog')
+    } catch (_) {}
     setTimeout(async () => {
       await load()
       setRefreshing(false)
@@ -194,7 +197,7 @@ export default function Workflows() {
   )
 }
 
-function SummaryCard({ label, value, color, icon }: { label: string; value: number; color: string; icon?: React.ReactNode }) {
+function SummaryCard({ label, value, color, icon }: { label: string; value: number; color: string; icon?: ReactNode }) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4">
       <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
