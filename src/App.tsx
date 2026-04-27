@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Agentes from './pages/Agentes'
+import Workflows from './pages/Workflows'
 import Uso from './pages/Uso'
 import ChatFiscal from './pages/ChatFiscal'
 import Logs from './pages/Logs'
@@ -33,6 +34,7 @@ function AppRoutes() {
       >
         <Route index element={<Dashboard />} />
         <Route path="agentes" element={<Agentes />} />
+        <Route path="workflows" element={<Workflows />} />
         <Route path="uso" element={<Uso />} />
         <Route path="fiscal" element={<ChatFiscal />} />
         <Route path="logs" element={<Logs />} />
