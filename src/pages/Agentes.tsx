@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { AGENTES, estimarCustoMensal, custoTotalEcossistema } from '../lib/agents'
+import AgentesEmProducao from '../components/AgentesEmProducao'
 
 const SISTEMAS = ['Todos', 'CRM', 'OS', 'Financeiro', 'Marketing', 'Logística', 'RH']
 
@@ -20,6 +21,17 @@ export default function Agentes() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold" style={{ color: '#0e2955' }}>Agentes</h1>
         <p className="text-sm mt-1" style={{ color: '#6b5b6e' }}>
+          Status real-time dos agentes em produção · Catálogo de planejamento abaixo
+        </p>
+      </div>
+
+      {/* Em produção (dados reais do Supabase) */}
+      <AgentesEmProducao />
+
+      {/* Catálogo de planejamento */}
+      <div className="mb-4 pt-4" style={{ borderTop: '1px solid #e8e4e8' }}>
+        <h2 className="text-base font-semibold" style={{ color: '#0e2955' }}>Catálogo de planejamento</h2>
+        <p className="text-xs mt-1" style={{ color: '#6b5b6e' }}>
           {AGENTES.length} agentes planejados · Custo total estimado:{' '}
           <span className="font-medium" style={{ color: '#8e2753' }}>R$ {total.brl.toFixed(2)}/mês</span>
           <span style={{ color: '#9c8fa0' }}> (USD {total.usd.toFixed(4)})</span>
