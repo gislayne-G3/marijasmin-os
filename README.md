@@ -1,3 +1,16 @@
+# ⛔ SISTEMA DESATIVADO — 03/07/2026
+
+O painel OS foi desligado na reorganização do ecossistema (decisão da Gis, 02/07/2026).
+
+- **O watchdog continua vivo**: Edge Function `os-watchdog` + crons pg_cron no Supabase (oovdayewoaeyaolzoesq) seguem monitorando n8n/Tiny/Mari a cada 5 min.
+- **Os alertas agora aparecem no MOTOR** (marijasmin-motor.vercel.app → Painel → card "Saúde do Ecossistema").
+- Tabelas os_workflow_status e os_alerts permanecem em `public`. Tabelas de custo de IA foram pro schema `arquivo`.
+- Pendente (ação manual): remover o projeto do dashboard do Vercel.
+
+Histórico completo preservado abaixo.
+
+---
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
